@@ -8,17 +8,17 @@ class Solution(object):
         p = "*".join(x for x in p.split("*") if x)
         return self.partition(p, s)
         
-    def partition(self, p, s, level=0):
+    def partition(self, s, p, level=0):
         print " "*level, "Partition called with: p=" +p + ", s=" + s 
         parts = p.split("*")
         can_match = [x for x in parts if "?" not in x]
         if not can_match:
-            return self.match(p, s)
+            return self.match(s, p, level=level+1)
             
         largest = max(can_match, key=len)
         
         if not largest:
-            return self.match(p, s)
+            return self.match(s, p, level=level+1)
         
         string_splits = s.split(largest)
         pattern_splits = p.split(largest)
@@ -30,8 +30,9 @@ class Solution(object):
             for j in range(len(pattern_splits)):
                 if not self.match(string_splits[i], pattern_splits[j], level=level+1):
                     continue
-                res = self.partition(largest.join(pattern_splits[:i]), largest.join(string_splits[:j]), level=level+1)
-                if res:
+                res1 = self.partition(largest.join(string_splits[:i]), largest.join(pattern_splits[:j]), level=level+1)
+                res2 = self.partition(largest.join(string_splits[i+1:]), largest.join(pattern_splits[j+1:]), level=level+1)
+                if res1 and res2:
                     return True
         return False
                 
@@ -52,7 +53,7 @@ class Solution(object):
         elif p[0] == '*':
             for pos in range(0, len(s)):
                 res = self.match(s[pos:], p[1:], level=level+1)
-                if res:
+                if not res:
                     return True
             return False
         else:
@@ -64,7 +65,7 @@ class Solution(object):
                     return False
                 p = p[1:]
                 s = s[1:]
-            return self.match(s, p)
+            return self.match(s, p, level=level+1)
             
             
         
